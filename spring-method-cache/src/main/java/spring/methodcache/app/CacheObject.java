@@ -1,9 +1,10 @@
 package spring.methodcache.app;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 
 public class CacheObject {
-	
+
 	@Cacheable(value = "myIntValue")
 	public String getIntValue(int intVal) {
 		switch (intVal) {
@@ -23,5 +24,9 @@ public class CacheObject {
 		return "No Value Match";
 	}
 
+	@CacheEvict(value = "myIntValue", allEntries = true)
+	public void evitBySpringReg(int value) {
+		System.out.println("Waiting to implement sssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+	}
 
 }

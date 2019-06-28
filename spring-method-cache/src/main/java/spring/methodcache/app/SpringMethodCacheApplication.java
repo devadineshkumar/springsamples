@@ -5,7 +5,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 @SpringBootApplication()
 public class SpringMethodCacheApplication {
-
+	
 	public static void main(String[] args) {
 		
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(); 
@@ -25,6 +25,8 @@ public class SpringMethodCacheApplication {
 		System.out.println(cacheObject.getIntValue(4));
 		System.out.println(cacheObject.getIntValue(5));
 		System.out.println(cacheObject.getIntValue(5));
+		
+		
 		ctx.close();
 		
 	}

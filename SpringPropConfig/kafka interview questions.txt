@@ -1,0 +1,61 @@
+
+
+what is kafk and in which scenarios itis used over a traditional message queue
+
+describe kafka components.
+
+how does kafka achieve scalability and fault tolerance via partitions and replication
+
+explain purpose of consumer group how it enable parallelism and fault recovery
+
+what is kafka offset in kafka, how do producers and consumers use the offset to track progress.
+
+compare topic vs queue. what makes topics different from a point-to-point queue.
+
+how does kafka guarantee at-least-one, at-most-once and exactly-once delivery semantics.
+
+what is log compaction, when and why would able to use it.
+
+steps to produce and consumer messages using command line tools
+
+how do you configure a topic a retention policy what happens to old data when retention limits over.
+
+how does producer batching work in kafka, and what are its benefits and drawbacks.
+
+explain the concept of leader re-election in kafka. what circumstances might ucause it to occur?
+
+walk me through kafka's distributed commit log architecture
+
+what is the role of zookeeper in the kafka cluster
+
+how are the kafka producer and consumer performance tuned
+
+describe kafka's ISR (in-Sync_replicas) and their purpose.
+
+what steps would you take to monitor kafka throughput and latency in real time.
+
+outline some key considerations for sizing a kafka cluster.
+
+what is kafka connect when it can be use it.
+
+how do you migrate the risk of unbalanced partitions in a topic?
+
+how is acks=all implemented internally in kafka?
+
+describe a strategy to handle backpressure from slow consumers?
+
+explain the use of kafka's message format version feature?
+
+what factors should be considered when choosing a partitioning key?
+
+can you describe the rebalance protocol in details?
+
+how does kafka ensure exatly-once semantics in stream processing?
+
+walk me through a strategy to monitor consumer group lag effectively.
+
+compare atomic broadcastREquest vs atomic commit request.
+
+what difficulties arise from kakfa's reliane on zookeeper nodes.
+
+how would you go about designing a custom kafka producer...

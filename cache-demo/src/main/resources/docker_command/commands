@@ -1,0 +1,12 @@
+Command input ->
+docker exec -it redis redis-cli SCAN 1000
+
+==Output==
+1) "0"
+2) 1) "PRODUCT_CACHE::55cbde16-8aaa-40c1-9a7f-4173cb289f2b"
+
+command input -> docker exec redis redis-cli GET "PRODUCT_CACHE::55cbde16-8aaa-40c1-9a7f-4173cb289f2b"
+
+==Output==
+{"id":"55cbde16-8aaa-40c1-9a7f-4173cb289f2b","name":"Wireless Headphones","price":99.99,"items":25,"createdDt":"2025-08-15T14:58:54.159799","updatedDt":"2025-08-15T14:58:54.159799","version":0}
+PS C:\Users\DineshKumar>

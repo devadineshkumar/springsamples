@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    kubernetes:
+      leader:
+        enabled: true
+        namespace: bean-space
+        config-map-name: my-leader-election

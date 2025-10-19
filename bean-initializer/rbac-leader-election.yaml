@@ -5,7 +5,7 @@ metadata:
   namespace: bean-space
 rules:
   - apiGroups: [""]
-    resources: ["configmaps"]
+    resources: ["configmaps", "pods"]
     verbs: ["get", "create", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -21,4 +21,3 @@ roleRef:
   kind: Role
   name: leader-election-role
   apiGroup: rbac.authorization.k8s.io
-

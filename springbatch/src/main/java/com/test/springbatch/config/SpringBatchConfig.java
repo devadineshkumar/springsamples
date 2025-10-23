@@ -32,25 +32,11 @@ public class SpringBatchConfig {
     private CustomerRepository customerRepository;
 
     @Bean
-    public RepositoryItemReader<Customer> batchItemReader() {
-        RepositoryItemReader<Customer> reader = new RepositoryItemReader<>();
-        reader.setRepository(customerRepository);
-        reader.setPageSize(20);
-        reader.setMethodName("findAll");
-        reader.setSort(Map.of("id", Sort.Direction.ASC));
-        return reader;
-    }
-
-
-    @Bean
-    public JpaItemWriter<CustomerCopy> batchItemWriter() {
-        return new JpaItemWriterBuilder<CustomerCopy>().entityManagerFactory(entityManagerFactory)
-                        .usePersist(true).build();
-    }
-
-    @Bean
-    public CustomerBatchProcessor processor() {
-        return new CustomerBatchProcessor();
+    public Job job() {
+        return new JobBuilder("customerJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
+                .start(customerStep())
+                .build();
     }
 
     @Bean
@@ -63,11 +49,27 @@ public class SpringBatchConfig {
     }
 
     @Bean
-    public Job job() {
-        return new JobBuilder("customerJob", jobRepository)
-                .incrementer(new RunIdIncrementer())
-                .start(customerStep())
+    public RepositoryItemReader<Customer> batchItemReader() {
+        RepositoryItemReader<Customer> reader = new RepositoryItemReader<>();
+        reader.setRepository(customerRepository);
+        reader.setPageSize(20);
+        reader.setMethodName("findAll");
+        reader.setSort(Map.of("id", Sort.Direction.ASC));
+        return reader;
+    }
+
+
+    @Bean
+    public JpaItemWriter<CustomerCopy> batchItemWriter() {
+        return new JpaItemWriterBuilder<CustomerCopy>()
+                .entityManagerFactory(entityManagerFactory)
+                .usePersist(true)
                 .build();
+    }
+
+    @Bean
+    public CustomerBatchProcessor processor() {
+        return new CustomerBatchProcessor();
     }
 
 

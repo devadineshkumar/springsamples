@@ -1,0 +1,65 @@
+.idea/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Build output
+/target/
+/out/
+/build/
+
+# Compiled class files
+*.class
+
+# Packages and archives
+*.jar
+*.war
+*.ear
+*.zip
+
+# Logs and temp files
+*.log
+logs/
+tmp/
+temp/
+
+# Maven files
+# (keep .mvn/ and mvnw* if you use the Maven wrapper)
+# local repository (uncommon to commit)
+/.m2/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# Test / coverage
+jacoco.exec
+coverage/
+*.lcov
+test-output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Node / package manager logs (if present)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Other IDE-specific / workspace files
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/shelf/
+.idea/**/deployment.xml

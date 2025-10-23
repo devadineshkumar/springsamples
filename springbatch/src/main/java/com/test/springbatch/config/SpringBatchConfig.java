@@ -1,5 +1,9 @@
 package com.test.springbatch.config;
 
+import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
+import com.test.springbatch.listener.MyJobListener;
+import com.test.springbatch.listener.MySkipListener;
+import com.test.springbatch.listener.MyStepListener;
 import com.test.springbatch.modal.Customer;
 import com.test.springbatch.modal.CustomerCopy;
 import com.test.springbatch.processor.CustomerBatchProcessor;
@@ -17,6 +21,7 @@ import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -30,12 +35,16 @@ public class SpringBatchConfig {
     private JobRepository jobRepository;
     private PlatformTransactionManager platformTransactionManager;
     private CustomerRepository customerRepository;
+    private MySkipListener mySkipListener;
+    private MyJobListener myJobListener;
+    private MyStepListener myStepListener;
 
     @Bean
     public Job job() {
         return new JobBuilder("customerJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(customerStep())
+                .listener(myJobListener)
                 .build();
     }
 
@@ -45,6 +54,13 @@ public class SpringBatchConfig {
                 .reader(batchItemReader())
                 .processor(processor())
                 .writer(batchItemWriter())
+                .faultTolerant()
+                .skip(MysqlDataTruncation.class)
+                .skipLimit(5)
+                .retry(DataAccessResourceFailureException.class)
+                .retryLimit(3)
+                .listener(mySkipListener)
+                .listener(myStepListener)
                 .build();
     }
 

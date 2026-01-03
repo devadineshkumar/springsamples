@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <title>Welcome</title>
+    <style>
+        .token-section { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        .token-link { display: inline-block; margin: 5px; padding: 8px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; }
+        .token-link:hover { background: #0056b3; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
 </head>
 <body>
-    <h1 th:text="${message}">hi welcome tothe azure entra id integration</h1>
+    <h1 th:text="${message}">hi welcome to the azure entra id integration</h1>
 
     <div th:if="${param.login_error}">
         <p style="color:darkred">Login error: <span th:text="${param.login_error}">error</span></p>
@@ -21,6 +27,23 @@
     <div th:unless="${username}">
         <!-- Use MSAL server-side flow only -->
         <a th:href="@{/msal/login}">Sign in with MSAL (server-side Java flow)</a>
+    </div>
+
+    <div class="token-section" th:if="${username}">
+        <h3>📱 JWT Token Management APIs</h3>
+        <p><strong>Get all tokens (access, ID, refresh):</strong></p>
+        <a class="token-link" href="/msal/tokens" target="_blank">GET /msal/tokens</a>
+
+        <p><strong>Get access token only:</strong></p>
+        <a class="token-link" href="/msal/access-token" target="_blank">GET /msal/access-token</a>
+
+        <p><strong>Refresh access token:</strong></p>
+        <button class="token-link" onclick="refreshToken()" style="cursor: pointer; border: none;">POST /msal/refresh</button>
+
+        <div id="refresh-result" style="margin-top: 10px;"></div>
+
+        <p style="margin-top: 15px;"><small><strong>💡 Tip:</strong> Copy the accessToken and use it in Authorization header:<br/>
+        <code>curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" https://graph.microsoft.com/v1.0/me</code></small></p>
     </div>
 
     <h3>MSAL Debug</h3>
@@ -80,6 +103,32 @@
             document.head.appendChild(script);
         })();
         /*]]>*/
+    </script>
+
+    <script>
+        function refreshToken() {
+            var resultDiv = document.getElementById('refresh-result');
+            resultDiv.innerHTML = '<em>Refreshing token...</em>';
+
+            fetch('/msal/refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.innerHTML = '<p style="color: red;">❌ Error: ' + data.error + '</p>';
+                } else {
+                    resultDiv.innerHTML = '<p style="color: green;">✅ ' + data.message + '</p>' +
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+            })
+            .catch(err => {
+                resultDiv.innerHTML = '<p style="color: red;">❌ Request failed: ' + err.message + '</p>';
+            });
+        }
     </script>
 </body>
 </html>

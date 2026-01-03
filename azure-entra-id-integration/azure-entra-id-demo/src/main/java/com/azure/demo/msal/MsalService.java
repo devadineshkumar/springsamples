@@ -4,6 +4,7 @@ import com.microsoft.aad.msal4j.AuthorizationCodeParameters;
 import com.microsoft.aad.msal4j.ConfidentialClientApplication;
 import com.microsoft.aad.msal4j.ConfidentialClientApplication.Builder;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
+import com.microsoft.aad.msal4j.SilentParameters;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -90,6 +91,23 @@ public class MsalService {
         Set<String> scopes = parseScopes(scope);
         AuthorizationCodeParameters parameters = AuthorizationCodeParameters.builder(code, new URI(redirectUri)).scopes(scopes).build();
         CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
+        return future.get();
+    }
+
+    /**
+     * Refresh the access token using the account (MSAL4J handles refresh token internally)
+     * @param account The account from a previous authentication result
+     * @return New IAuthenticationResult with refreshed access token
+     */
+    public IAuthenticationResult refreshTokenSilently(com.microsoft.aad.msal4j.IAccount account) throws Exception {
+        ConfidentialClientApplication app = buildApp();
+        Set<String> scopes = parseScopes(scope);
+
+        // Use silent token acquisition - MSAL will use the cached refresh token automatically
+        SilentParameters parameters = SilentParameters.builder(scopes, account)
+                .build();
+
+        CompletableFuture<IAuthenticationResult> future = app.acquireTokenSilently(parameters);
         return future.get();
     }
 }

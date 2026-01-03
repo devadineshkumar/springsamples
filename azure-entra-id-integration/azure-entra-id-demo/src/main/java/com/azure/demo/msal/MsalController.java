@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -151,5 +154,117 @@ public class MsalController {
             sb.append(name).append("=").append(val == null ? "null" : val.toString()).append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * GET /msal/tokens - Returns all JWT tokens from the MSAL session
+     * Returns: JSON with accessToken, idToken, refreshToken, expiresOn, and account info
+     */
+    @GetMapping(value = "/msal/tokens", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> getTokens(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return Map.of("error", "No session found. Please sign in first.");
+        }
+
+        IAuthenticationResult authResult = (IAuthenticationResult) session.getAttribute("msal_auth_result");
+        if (authResult == null) {
+            return Map.of("error", "Not authenticated. Please sign in via /msal/login first.");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("accessToken", authResult.accessToken());
+        response.put("idToken", authResult.idToken());
+
+        // Note: MSAL4J doesn't expose refresh token via public API
+        // Token refresh is handled via acquireTokenSilently with the account
+        response.put("refreshToken", "Managed by MSAL (use /msal/refresh endpoint)");
+
+        response.put("expiresOn", authResult.expiresOnDate().toString());
+        response.put("tokenType", "Bearer");
+
+        Map<String, Object> accountInfo = new HashMap<>();
+        accountInfo.put("username", authResult.account().username());
+        accountInfo.put("homeAccountId", authResult.account().homeAccountId());
+        accountInfo.put("environment", authResult.account().environment());
+        response.put("account", accountInfo);
+
+        log.info("Tokens retrieved for user: {}", authResult.account().username());
+        return response;
+    }
+
+    /**
+     * GET /msal/access-token - Returns only the access token (JWT)
+     * Use this token in Authorization header: Bearer {accessToken}
+     */
+    @GetMapping(value = "/msal/access-token", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> getAccessToken(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return Map.of("error", "No session found");
+        }
+
+        IAuthenticationResult authResult = (IAuthenticationResult) session.getAttribute("msal_auth_result");
+        if (authResult == null) {
+            return Map.of("error", "Not authenticated");
+        }
+
+        return Map.of(
+            "accessToken", authResult.accessToken(),
+            "expiresOn", authResult.expiresOnDate().toString(),
+            "tokenType", "Bearer"
+        );
+    }
+
+    /**
+     * POST /msal/refresh - Refresh the access token using the refresh token
+     * Returns the new access token and updates the session
+     */
+    @PostMapping(value = "/msal/refresh", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> refreshToken(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return Map.of("error", "No session found");
+        }
+
+        IAuthenticationResult oldResult = (IAuthenticationResult) session.getAttribute("msal_auth_result");
+        if (oldResult == null) {
+            return Map.of("error", "Not authenticated. Please sign in first.");
+        }
+
+        try {
+            log.info("Refreshing token for user: {}", oldResult.account().username());
+            // Use account-based silent token acquisition (MSAL handles the refresh token internally)
+            IAuthenticationResult newResult = msalService.refreshTokenSilently(oldResult.account());
+            session.setAttribute("msal_auth_result", newResult);
+
+            log.info("Token refreshed successfully for user: {}", newResult.account().username());
+            return Map.of(
+                "message", "Token refreshed successfully",
+                "accessToken", newResult.accessToken(),
+                "expiresOn", newResult.expiresOnDate().toString(),
+                "username", newResult.account().username()
+            );
+        } catch (Exception e) {
+            log.error("Token refresh failed", e);
+            return Map.of("error", "Refresh failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * POST /msal/logout - Clear session and invalidate tokens locally
+     */
+    @PostMapping("/msal/logout")
+    public String logout(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+            log.info("Session invalidated (user logged out)");
+        }
+        model.addAttribute("message", "Logged out successfully (session cleared)");
+        return "welcome";
     }
 }

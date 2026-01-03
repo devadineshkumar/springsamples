@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Welcome</title>
+</head>
+<body>
+    <h1 th:text="${message}">hi welcome tothe azure entra id integration</h1>
+
+    <div th:if="${param.login_error}">
+        <p style="color:darkred">Login error: <span th:text="${param.login_error}">error</span></p>
+    </div>
+
+    <div th:if="${username}">
+        <p>Signed in as <strong th:text="${username}">user</strong></p>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <div th:unless="${username}">
+        <!-- Use MSAL server-side flow only -->
+        <a th:href="@{/msal/login}">Sign in with MSAL (server-side Java flow)</a>
+    </div>
+
+    <h3>MSAL Debug</h3>
+    <div>
+        <p><strong>Authorize URL (debug):</strong> <a href="/msal/config" target="_blank">/msal/config</a></p>
+        <p><strong>Session dump (debug):</strong> <a href="/msal/session" target="_blank">/msal/session</a></p>
+    </div>
+
+    <div>
+        <p><strong>Callback debug values (if available):</strong></p>
+        <ul>
+            <li>incomingState: <span th:text="${incomingState}">-</span></li>
+            <li>sessionId: <span th:text="${sessionId}">-</span></li>
+            <li>savedState: <span th:text="${savedState}">-</span></li>
+            <li>code: <span th:text="${code}">-</span></li>
+            <li>errorParam: <span th:text="${errorParam}">-</span></li>
+        </ul>
+    </div>
+
+    <!-- Client-side MSAL status (optional) -->
+    <div id="msal-client-section" th:if="${msalClientId}">
+        <h3>MSAL client-side status</h3>
+        <div id="msal-info">Loading MSAL client...</div>
+    </div>
+
+    <script th:if="${msalClientId}" th:inline="javascript">
+        /*<![CDATA[*/
+        (function(){
+            var clientId = /*[[${msalClientId}]]*/ '';
+            var authority = /*[[${msalAuthority}]]*/ '';
+            var script = document.createElement('script');
+            script.src = 'https://alcdn.msauth.net/browser/2.34.0/js/msal-browser.min.js';
+            script.onload = function() {
+                try {
+                    var msalConfig = {
+                        auth: {
+                            clientId: clientId,
+                            authority: authority || undefined,
+                            redirectUri: window.location.origin + '/index.html'
+                        }
+                    };
+                    var msalInstance = new msal.PublicClientApplication(msalConfig);
+                    var accounts = msalInstance.getAllAccounts();
+                    var infoEl = document.getElementById('msal-info');
+                    if (accounts.length > 0) {
+                        infoEl.textContent = 'Signed in (client-side) as: ' + accounts[0].username;
+                    } else {
+                        infoEl.textContent = 'No client-side MSAL account detected.';
+                    }
+                } catch(e) {
+                    document.getElementById('msal-info').textContent = 'MSAL init error: ' + e;
+                }
+            };
+            script.onerror = function(){
+                document.getElementById('msal-info').textContent = 'Failed to load MSAL script.';
+            };
+            document.head.appendChild(script);
+        })();
+        /*]]>*/
+    </script>
+</body>
+</html>

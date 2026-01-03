@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Azure Entra ID - MSAL Demo</title>
+    <script src="https://alcdn.msauth.net/browser/2.34.0/js/msal-browser.min.js"></script>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; margin: 2rem; }
+        button { margin: 0.5rem 0; }
+        pre { background:#f4f4f4; padding:1rem; }
+    </style>
+</head>
+<body>
+    <h1>Azure Entra ID - Client-side (MSAL) Demo</h1>
+
+    <p>This page demonstrates signing in with MSAL (browser) using Azure Entra ID.</p>
+
+    <p>Before running, replace <code>YOUR_CLIENT_ID</code> and <code>YOUR_TENANT_ID</code> below with values from your Azure App Registration (SPA).</p>
+
+    <button id="btnLogin">Sign in (Popup)</button>
+    <button id="btnLoginRedirect">Sign in (Redirect)</button>
+    <button id="btnLogout">Sign out</button>
+
+    <h3>Account info</h3>
+    <pre id="accountInfo">Not signed in</pre>
+
+    <script>
+        // TODO: Replace these values with your Azure AD app registration values
+        const CLIENT_ID = "YOUR_CLIENT_ID"; // Application (client) ID
+        const TENANT_ID = "YOUR_TENANT_ID"; // Tenant ID or "common"
+
+        const msalConfig = {
+            auth: {
+                clientId: CLIENT_ID,
+                authority: `https://login.microsoftonline.com/${TENANT_ID}`,
+                redirectUri: window.location.origin + '/index.html'
+            },
+            cache: {
+                cacheLocation: "localStorage",
+                storeAuthStateInCookie: false
+            }
+        };
+
+        const loginRequest = {
+            scopes: ["openid", "profile", "email"]
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        const accountInfoEl = document.getElementById('accountInfo');
+        const btnLogin = document.getElementById('btnLogin');
+        const btnLoginRedirect = document.getElementById('btnLoginRedirect');
+        const btnLogout = document.getElementById('btnLogout');
+
+        function updateUI() {
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+                const acc = accounts[0];
+                accountInfoEl.textContent = JSON.stringify(acc, null, 2);
+            } else {
+                accountInfoEl.textContent = 'Not signed in';
+            }
+        }
+
+        btnLogin.addEventListener('click', () => {
+            msalInstance.loginPopup(loginRequest)
+                .then((response) => {
+                    console.log('Login response', response);
+                    updateUI();
+                })
+                .catch(err => console.error(err));
+        });
+
+        btnLoginRedirect.addEventListener('click', () => {
+            msalInstance.loginRedirect(loginRequest);
+        });
+
+        btnLogout.addEventListener('click', () => {
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+                msalInstance.logoutPopup({ account: accounts[0] })
+                    .then(() => updateUI())
+                    .catch(err => {
+                        console.error(err);
+                        // fallback to redirect
+                        msalInstance.logoutRedirect({ account: accounts[0] });
+                    });
+            } else {
+                accountInfoEl.textContent = 'Not signed in';
+            }
+        });
+
+        // Handle redirect response (if using redirect flow)
+        msalInstance.handleRedirectPromise()
+            .then((resp) => {
+                if (resp) {
+                    console.log('Redirect login response', resp);
+                }
+                updateUI();
+            })
+            .catch(err => console.error(err));
+
+        // Initialize UI
+        updateUI();
+    </script>
+</body>
+</html>
+

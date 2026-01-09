@@ -89,13 +89,16 @@ After successful generation:
 
 ## Customizing the Keystore
 
-When running the script, you can:
+When running the interactive script (`generate-keystore.bat`), you can:
 - Press `N` (or just Enter) to use default values
 - Press `Y` to customize:
   - Keystore filename
   - Alias name
-  - Password
+  - Password (⚠️ **Note**: Password will be visible when typed - this is a Windows batch file limitation)
   - Validity period in days
+  - Common Name/hostname (e.g., localhost, example.com)
+
+For the quick script (`generate-keystore-quick.bat`), all default values are used automatically.
 
 ## Troubleshooting
 

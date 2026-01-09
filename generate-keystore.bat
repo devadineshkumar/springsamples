@@ -39,6 +39,10 @@ echo.
 REM Prompt user if they want to customize
 set /p CUSTOMIZE="Do you want to customize these settings? (y/N): "
 if /i "%CUSTOMIZE%"=="y" (
+    echo.
+    echo NOTE: Passwords will be visible when typed (Windows limitation)
+    echo.
+    
     set /p KEYSTORE_NAME="Enter keystore filename (default: keystore.p12): "
     if "%KEYSTORE_NAME%"=="" set KEYSTORE_NAME=keystore.p12
     
@@ -50,6 +54,11 @@ if /i "%CUSTOMIZE%"=="y" (
     
     set /p VALIDITY_DAYS="Enter validity in days (default: 365): "
     if "%VALIDITY_DAYS%"=="" set VALIDITY_DAYS=365
+    
+    set /p COMMON_NAME="Enter hostname/CN (default: localhost): "
+    if "%COMMON_NAME%"=="" set COMMON_NAME=localhost
+) else (
+    set COMMON_NAME=localhost
 )
 
 echo.
@@ -60,7 +69,7 @@ REM Generate the keystore
 keytool -genkeypair -alias %KEYSTORE_ALIAS% -keyalg RSA -keysize 2048 ^
     -storetype PKCS12 -keystore %KEYSTORE_NAME% -validity %VALIDITY_DAYS% ^
     -storepass %KEYSTORE_PASSWORD% -keypass %KEYSTORE_PASSWORD% ^
-    -dname "CN=localhost, OU=Development, O=SpringSamples, L=City, ST=State, C=US"
+    -dname "CN=%COMMON_NAME%, OU=Development, O=SpringSamples, L=City, ST=State, C=US"
 
 if %ERRORLEVEL% EQU 0 (
     echo.

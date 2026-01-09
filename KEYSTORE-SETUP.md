@@ -8,27 +8,44 @@ When trying to run keytool commands directly on Windows, the command window may 
 
 ## Solution
 
-Use the provided `generate-keystore.bat` script which includes:
+Two batch files are provided to solve this problem:
+
+### 1. `generate-keystore.bat` (Interactive)
 - Error handling and validation
 - Clear instructions and prompts
+- Option to customize settings
 - The window stays open so you can see all messages
-- Default values for quick setup
-- Optional customization of settings
+
+### 2. `generate-keystore-quick.bat` (Quick)
+- Uses default values (no prompts)
+- Faster for users who want standard settings
+- Still keeps window open to show results
 
 ## How to Use
 
-### Option 1: Double-Click (Recommended for Windows)
+### Option 1: Quick Generation (Recommended for Beginners)
+
+1. Locate the `generate-keystore-quick.bat` file in the repository root
+2. Double-click the file to run it
+3. Wait for completion - the window will stay open to show results
+4. Press any key to close the window
+
+### Option 2: Interactive Generation (For Custom Settings)
 
 1. Locate the `generate-keystore.bat` file in the repository root
 2. Double-click the file to run it
-3. Follow the on-screen prompts
+3. Follow the on-screen prompts to customize settings
 4. The window will stay open until you press a key, allowing you to read all output
 
-### Option 2: Command Line
+### Option 3: Command Line
 
 1. Open Command Prompt or PowerShell
 2. Navigate to the repository root directory
-3. Run the script:
+3. Run either script:
+   ```cmd
+   generate-keystore-quick.bat
+   ```
+   or
    ```cmd
    generate-keystore.bat
    ```
@@ -98,11 +115,26 @@ java -version
 keytool -help
 ```
 
-### Window Closes Immediately
+### Window Closes Immediately (FIXED)
 
-**Cause**: Old version of the batch file without pause command.
+**Problem**: When double-clicking a batch file on Windows, the command window opens and closes immediately.
 
-**Solution**: Make sure you're using the updated `generate-keystore.bat` file which includes the `pause` command at the end.
+**Root Cause**: 
+- Batch files execute and close automatically when complete
+- If there's an error, users can't see the error message
+- This is the default Windows behavior
+
+**Solution Applied**:
+Both batch files now include:
+1. `pause >nul` at the end - keeps window open until user presses a key
+2. `pause` command after errors - allows users to read error messages
+3. Clear success/error messages - users know what happened
+
+**What This Means For You**:
+- The window will NOT close automatically anymore
+- You can read all output messages (success or error)
+- Press any key when you're done reading to close the window
+- This is the fix for the original issue reported
 
 ### Certificate Not Trusted in Browser
 

@@ -1,0 +1,11 @@
+# Docker ignore patterns
+target/
+.git/
+.gitignore
+README.md
+.DS_Store
+*.log
+.env
+.vscode/
+.idea/
+*.iml

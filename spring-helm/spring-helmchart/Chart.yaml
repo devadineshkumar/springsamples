@@ -1,0 +1,16 @@
+apiVersion: v2
+name: spring-helmchart
+description: A Helm chart for deploying Spring Boot application (spring-helm-app) to Kubernetes
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - spring-boot
+  - kubernetes
+  - helm
+home: https://github.com/example/spring-helm
+sources:
+  - https://github.com/example/spring-helm
+maintainers:
+  - name: Spring Helm Team
+    email: team@springhelm.local

@@ -1,0 +1,14 @@
+# Git ignore patterns
+target/
+.idea/
+*.iml
+*.class
+*.jar
+*.log
+.DS_Store
+.vscode/
+.env
+node_modules/
+*.swp
+*.swo
+*~

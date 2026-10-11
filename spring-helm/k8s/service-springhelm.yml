@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-springhelm
+  namespace: default
+  labels:
+    app: spring-helm-app
+    version: v1
+spec:
+  type: ClusterIP
+  selector:
+    app: spring-helm-app
+    release: springhelm
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  sessionAffinity: None

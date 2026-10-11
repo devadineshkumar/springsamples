@@ -15,7 +15,6 @@ image:
   pullPolicy: Never
   tag: "latest"
 
-# Image pull secrets (for private registries)
 imagePullSecrets: []
 
 # Service account configuration
